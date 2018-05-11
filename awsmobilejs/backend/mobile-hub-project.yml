@@ -12,20 +12,19 @@ features:
   sign-in: !com.amazonaws.mobilehub.v0.SignIn 
     attributes:
       enabled: true
-      optional-sign-in: true
+      optional-sign-in: false
     components:
       sign-in-user-pools: !com.amazonaws.mobilehub.v0.UserPoolsIdentityProvider 
         attributes:
           alias-attributes:
-            - email
-            - phone_number
-          mfa-configuration: ON
+            - preferred_username
+          mfa-configuration: OFF
           name: userpool
           password-policy: !com.amazonaws.mobilehub.ConvertibleMap 
-            min-length: '8'
-            require-lower-case: true
-            require-numbers: true
-            require-symbols: true
-            require-upper-case: true
+            min-length: '6'
+            require-lower-case: false
+            require-numbers: false
+            require-symbols: false
+            require-upper-case: false
 name: myAmplifyProject
 region: us-east-1
