@@ -1,0 +1,8 @@
+int attr button_style 0x7f010001
+int attr text 0x7f010000
+int id large 0x7f020000
+int id small 0x7f020001
+int string sign_in_failure_message_format 0x7f030000
+int[] styleable SignInButton { 0x7f010000, 0x7f010001 }
+int styleable SignInButton_button_style 1
+int styleable SignInButton_text 0
