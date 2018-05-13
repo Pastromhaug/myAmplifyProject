@@ -89,6 +89,7 @@ ADDED from /Users/stromhaug/Projects/mobile_apps/myAmplifyProject/android/app/sr
 		ADDED from /Users/stromhaug/Projects/mobile_apps/myAmplifyProject/android/app/src/main/AndroidManifest.xml:23:17-81
 uses-sdk
 INJECTED from /Users/stromhaug/Projects/mobile_apps/myAmplifyProject/android/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
+MERGED from [myAmplifyProject:amazon-cognito-identity-js:unspecified] /Users/stromhaug/Projects/mobile_apps/myAmplifyProject/android/app/build/intermediates/exploded-aar/myAmplifyProject/amazon-cognito-identity-js/unspecified/AndroidManifest.xml:7:5-9:41
 MERGED from [myAmplifyProject:aws-amplify-react-native:unspecified] /Users/stromhaug/Projects/mobile_apps/myAmplifyProject/android/app/build/intermediates/exploded-aar/myAmplifyProject/aws-amplify-react-native/unspecified/AndroidManifest.xml:7:5-9:41
 MERGED from [com.google.firebase:firebase-messaging:11.8.0] /Users/stromhaug/Projects/mobile_apps/myAmplifyProject/android/app/build/intermediates/exploded-aar/com.google.firebase/firebase-messaging/11.8.0/AndroidManifest.xml:20:5-44
 MERGED from [com.google.firebase:firebase-messaging-license:11.8.0] /Users/stromhaug/Projects/mobile_apps/myAmplifyProject/android/app/build/intermediates/exploded-aar/com.google.firebase/firebase-messaging-license/11.8.0/AndroidManifest.xml:4:5-43
