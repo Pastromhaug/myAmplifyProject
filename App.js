@@ -12,11 +12,10 @@ import { AUTH_TYPE } from 'aws-appsync/lib/link/auth-link';
 import { Auth } from 'aws-amplify';
 import { graphql, ApolloProvider, compose } from 'react-apollo';
 
-import gql from 'graphql-tag';
-
 import createMessage from './src/graphql/mutations/createMessage';
 import createUser from './src/graphql/mutations/createUser';
-import getMe from './src/graphql/queries/getMe';
+
+import ConversationList from './src/components/ConversationList';
 
 
 Amplify.configure(aws_exports)
@@ -38,21 +37,12 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         Auth.currentSession().then(session => {
-          this.logInfoToConsole(session);
-          this.state =  {session};
-          this.register();
-          this.createUser();
-        });
-    }
-
-    register() {
-        client.watchQuery({
-            query: getMe,
-            fetchPolicy: 'cache-only'
-        }).subscribe(({data}) => {
-            if (data) {
-                console.log('me data', data)
-            }
+            // this.logInfoToConsole(session);
+            props.createUser({
+                username: session.idToken.payload['cognito:username'],
+                id: session.idToken.payload['sub'],
+                cognitoId: session.idToken.payload['sub'],
+            });
         });
     }
 
@@ -77,11 +67,7 @@ class App extends React.Component {
     render() {
         return (
             <TouchableOpacity onPress={this._sendMessage.bind(this)}>
-                <View style={styles.container}>
-                    <Text>hiiiiyyyy. Open up App.js to start working on your app!</Text>
-                    <Text>Changes you make will automatically reload.</Text>
-                    <Text>Shake your phone to open the developer menu.</Text>
-                </View>
+                <ConversationList/>
             </TouchableOpacity>
         );
     }
@@ -98,23 +84,25 @@ const AppGraphQL = compose(
                         createdAt: message.createdAt,
                         conversationId: message.conversationId,
                     }
-                }).then( data => console.log('createMessage data:', data))
+                }).then( data => {})//'console.log('createMessage data:', data)')
             }
         })
     }),
     graphql(createUser, {
-        createUser: (user) => {
-            console.log('createUse session', this.state.session);
-            props.mutate({
-                variables: {
-                    username: this.state.session.idToken.payload['cognito:username'],
-                    id: this.state.session.idToken.payload['sub'],
-                    cognitoId: this.state.session.idToken.payload['sub'],
-                    registered: false
-                }
-            })
-        }
-    })
+        props: (props) => ({
+            createUser: (user) => {
+                // console.log('createUse session', user);
+                props.mutate({
+                    variables: {
+                        username: user.username,
+                        id: user.id,
+                        cognitoId: user.cognitoId,
+                        registered: false
+                    }
+                }).then( data => {})//console.log('createUser data: ', data))
+            }
+        })
+    }),
 )(App);
 
 class withAuthentication extends React.Component {
@@ -130,14 +118,5 @@ class withAuthentication extends React.Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-});
 
 export default withAuthentication
