@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { Button, FlatList, StyleSheet, Text, View } from 'react-native';
 import { graphql, ApolloProvider, compose } from 'react-apollo';
 
 import getUserConversationsConnection from '../graphql/queries/getUserConversationsConnection';
@@ -24,12 +24,14 @@ class ConversationList extends React.Component {
 
         return (
             <View style={styles.container}>
-                <Text>hiiiiyyyy. Open up App.js to start working on your app!</Text>
-                <Text>Changes you make will automatically reload.</Text>
-                <Text>Shake your phone to open the developer menu.</Text>
+                <FlatList
+                    data={this.props.conversationConnection}
+                    renderItem={({item}) => <Text>{item.conversation.name}</Text>}
+                />
                 <Button
                     onPress={() => this._createUserConversation()}
-                    title='Create Conversation' />
+                    title='Create Conversation'
+                />
             </View>
         )
     }
