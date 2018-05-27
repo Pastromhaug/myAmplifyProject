@@ -4,6 +4,7 @@ import { StyleSheet, Text, View, TouchableOpacity, AsyncStorage } from 'react-na
 import Amplify from 'aws-amplify';
 import aws_exports from './src/aws-exports';
 import { Authenticator } from 'aws-amplify-react-native';
+import { createStackNavigator } from 'react-navigation';
 
 import AWSAppSyncClient from 'aws-appsync';
 import { Rehydrated } from 'aws-appsync-react';
@@ -37,23 +38,12 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         Auth.currentSession().then(session => {
-            // this.logInfoToConsole(session);
             props.createUser({
                 username: session.idToken.payload['cognito:username'],
                 id: session.idToken.payload['sub'],
                 cognitoId: session.idToken.payload['sub'],
             });
         });
-    }
-
-    logInfoToConsole(session) {
-        console.log(session);
-        console.log(`ID Token: <${session.idToken.jwtToken}>`);
-        console.log(`Access Token: <${session.accessToken.jwtToken}>`);
-        console.log('Decoded ID Token:');
-        console.log(JSON.stringify(session.idToken.payload, null, 2));
-        console.log('Decoded Acess Token:');
-        console.log(JSON.stringify(session.accessToken.payload, null, 2));
     }
 
     _sendMessage() {
@@ -105,13 +95,23 @@ const AppGraphQL = compose(
     }),
 )(App);
 
+
+const AppNavigation = createStackNavigator(
+    {
+        Conversations: AppGraphQL,
+    }
+    {
+        initialRouteName: 'Conversations',
+    }
+});
+
 class withAuthentication extends React.Component {
   render() {
     return (
         <Authenticator>
             <ApolloProvider client={client}>
                 <Rehydrated>
-                    <AppGraphQL/>
+                    <AppNavigation/>
                 </Rehydrated>
             </ApolloProvider>
         </Authenticator>
