@@ -1,21 +1,22 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, AsyncStorage } from 'react-native';
 
-import Amplify from 'aws-amplify';
+import Amplify, { Auth } from 'aws-amplify';
 import aws_exports from './src/aws-exports';
-import { Authenticator } from 'aws-amplify-react-native';
+import { withAuthenticator } from 'aws-amplify-react-native';
+import { createStackNavigator } from 'react-navigation';
 
 import AWSAppSyncClient from 'aws-appsync';
 import { Rehydrated } from 'aws-appsync-react';
 import appSyncConfig from './src/AppSync.js';
 import { AUTH_TYPE } from 'aws-appsync/lib/link/auth-link';
-import { Auth } from 'aws-amplify';
 import { graphql, ApolloProvider, compose } from 'react-apollo';
 
 import createMessage from './src/graphql/mutations/createMessage';
-import createUser from './src/graphql/mutations/createUser';
 
 import ConversationList from './src/components/ConversationList';
+import CreateConversation from './src/components/CreateConversation';
+import Messages from './src/components/Messages';
 
 
 Amplify.configure(aws_exports)
@@ -31,92 +32,23 @@ const client = new AWSAppSyncClient({
     }
 });
 
+const AppNavigation = createStackNavigator(
+    { Conversations: ConversationList,
+      CreateConversation: CreateConversation,
+      Messages: Messages },
+    { initialRouteName: 'Conversations'}
+);
 
-class App extends React.Component {
-
-    constructor(props) {
-        super(props);
-        Auth.currentSession().then(session => {
-            // this.logInfoToConsole(session);
-            props.createUser({
-                username: session.idToken.payload['cognito:username'],
-                id: session.idToken.payload['sub'],
-                cognitoId: session.idToken.payload['sub'],
-            });
-        });
-    }
-
-    logInfoToConsole(session) {
-        console.log(session);
-        console.log(`ID Token: <${session.idToken.jwtToken}>`);
-        console.log(`Access Token: <${session.accessToken.jwtToken}>`);
-        console.log('Decoded ID Token:');
-        console.log(JSON.stringify(session.idToken.payload, null, 2));
-        console.log('Decoded Acess Token:');
-        console.log(JSON.stringify(session.accessToken.payload, null, 2));
-    }
-
-    _sendMessage() {
-        this.props.createMessage({
-            content: 'hi2',
-            conversationId: "convo ID2",
-            createdAt: '13 PM',
-        })
-    }
-
-    render() {
-        return (
-            <TouchableOpacity onPress={this._sendMessage.bind(this)}>
-                <ConversationList/>
-            </TouchableOpacity>
-        );
-    }
-}
-
-const AppGraphQL = compose(
-    graphql(createMessage, {
-        props: (props) => ({
-            createMessage: (message) => {
-                props.mutate({
-                    variables: {
-                        id: 'id1',
-                        content: message.content,
-                        createdAt: message.createdAt,
-                        conversationId: message.conversationId,
-                    }
-                }).then( data => {})//'console.log('createMessage data:', data)')
-            }
-        })
-    }),
-    graphql(createUser, {
-        props: (props) => ({
-            createUser: (user) => {
-                // console.log('createUse session', user);
-                props.mutate({
-                    variables: {
-                        username: user.username,
-                        id: user.id,
-                        cognitoId: user.cognitoId,
-                        registered: false
-                    }
-                }).then( data => {})//console.log('createUser data: ', data))
-            }
-        })
-    }),
-)(App);
-
-class withAuthentication extends React.Component {
+class withProvidor extends React.Component {
   render() {
     return (
-        <Authenticator>
-            <ApolloProvider client={client}>
-                <Rehydrated>
-                    <AppGraphQL/>
-                </Rehydrated>
-            </ApolloProvider>
-        </Authenticator>
+        <ApolloProvider client={client}>
+            <Rehydrated>
+                <AppNavigation/>
+            </Rehydrated>
+        </ApolloProvider>
     );
   }
 }
 
-export default withAuthentication
+export default withAuthenticator(withProvidor)

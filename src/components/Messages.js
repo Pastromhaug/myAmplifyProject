@@ -23,7 +23,7 @@ class ConversationList extends React.Component {
 
     _renderItem(item) {
         return (
-            <TouchableOpacity onPress={() => this.props.navigation.navigate('Messages')}>
+            <TouchableOpacity>
                 <Text>{item.item.conversation.name}</Text>
             </TouchableOpacity>
         )
@@ -32,9 +32,10 @@ class ConversationList extends React.Component {
     render() {
         return (
             <View>
+                <Text> Messages </Text>
                 <FlatList
                     data={this.props.conversationConnection}
-                    renderItem={this._renderItem.bind(this)} />
+                    renderItem={this._renderItem} />
                 <Button
                     onPress={() => this.props.navigation.navigate('CreateConversation')}
                     title='Create Conversation'/>
@@ -69,3 +70,4 @@ const ConversationListGraphQL = compose(
 )(ConversationList)
 
 export default ConversationListGraphQL;
+

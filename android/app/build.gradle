@@ -137,6 +137,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-uuid-generator')
     compile project(':amazon-cognito-identity-js')
     compile project(':aws-amplify-react-native')
     compile fileTree(dir: "libs", include: ["*.jar"])
