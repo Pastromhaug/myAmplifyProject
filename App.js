@@ -15,6 +15,7 @@ import { graphql, ApolloProvider, compose } from 'react-apollo';
 import createMessage from './src/graphql/mutations/createMessage';
 
 import ConversationList from './src/components/ConversationList';
+import CreateConversation from './src/components/CreateConversation';
 
 
 Amplify.configure(aws_exports)
@@ -31,7 +32,8 @@ const client = new AWSAppSyncClient({
 });
 
 const AppNavigation = createStackNavigator(
-    { Conversations: ConversationList },
+    { Conversations: ConversationList,
+      CreateConversation: CreateConversation },
     { initialRouteName: 'Conversations'}
 );
 

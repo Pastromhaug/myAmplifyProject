@@ -7,39 +7,35 @@ import { Auth } from 'aws-amplify';
 import createUser from '../graphql/mutations/createUser';
 import getUserConversationsConnection from '../graphql/queries/getUserConversationsConnection';
 import createUserConversations from '../graphql/mutations/createUserConversations';
-// import createConversation from '../graphql/mutations/createConversation';
+import createConversation from '../graphql/mutations/createConversation';
 import getMe from '../graphql/queries/getMe';
 
 
-class ConversationList extends React.Component {
+class CreateConversation extends React.Component {
 
-    constructor(props) {
-        super(props);
-        Auth.currentSession().then(session => {
-            props.createUser({
-                username: session.idToken.payload['cognito:username'],
-                id: session.idToken.payload['sub'],
-                cognitoId: session.idToken.payload['sub'],
-            });
-        });
+    _createUserConversation() {
+        console.log('createing user convo')
+        let userConvo = this.props.createUserConversations(this.props.cognitoId, 'convo ID', )
+        console.log('userConvo', userConvo)
     }
 
     render() {
-        console.log('ConversationList render props: ', this.props);
+        console.log('CreateConversation render props: ', this.props);
         return (
             <View>
+                <Text> Create Conversation </Text>
                 <FlatList
                     data={this.props.conversationConnection}
                     renderItem={({item}) => <Text>{item.conversation.name}</Text>} />
                 <Button
-                    onPress={() => this.props.navigation.navigate('CreateConversation')}
+                    onPress={() => this._createUserConversation()}
                     title='Create Conversation'/>
             </View>
         )
     }
 }
 
-const ConversationListGraphQL = compose(
+const CreateConversationGraphQL = compose(
     graphql(getMe, {
         options: { fetchPolicy: 'cache-and-network' },
         props: (props) => {
@@ -59,7 +55,6 @@ const ConversationListGraphQL = compose(
     graphql(createUserConversations, {
         props: (props) => ({
             createUserConversations: (user_id, conversation_id) => {
-                console.log('createUserConversation params: ', user_id, conversation_id);
                 props.mutate({
                     variables: {
                         userId: user_id,
@@ -69,20 +64,18 @@ const ConversationListGraphQL = compose(
             }
         })
     }),
-    graphql(createUser, {
+    graphql(createConversation, {
         props: (props) => ({
-            createUser: (user) => {
+            createConversation: (user_id, conversation_id) => {
                 props.mutate({
                     variables: {
-                        username: user.username,
-                        id: user.id,
-                        cognitoId: user.cognitoId,
-                        registered: false
+                        userId: user_id,
+                        conversationId: conversation_id,
                     }
-                }).then( data => {})
+                })
             }
         })
     }),
-)(ConversationList)
+)(CreateConversation)
 
-export default ConversationListGraphQL;
+export default CreateConversationGraphQL;
