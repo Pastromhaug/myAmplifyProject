@@ -40,7 +40,6 @@ class withProvidor extends React.Component {
     return (
         <ApolloProvider client={client}>
             <Rehydrated>
-                {/*<Text> hii 2 </Text>*/}
                 <AppNavigation/>
             </Rehydrated>
         </ApolloProvider>
