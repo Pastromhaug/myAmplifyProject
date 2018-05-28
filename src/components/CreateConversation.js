@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, FlatList, StyleSheet, Text, View } from 'react-native';
+import { Button, FlatList, StyleSheet, Text, TextInput, View } from 'react-native';
 import { graphql, ApolloProvider, compose } from 'react-apollo';
 
 import { Auth } from 'aws-amplify';
@@ -10,23 +10,36 @@ import createUserConversations from '../graphql/mutations/createUserConversation
 import createConversation from '../graphql/mutations/createConversation';
 import getMe from '../graphql/queries/getMe';
 
+import UUIDGenerator, { getRandomUUID } from 'react-native-uuid-generator';
+
 
 class CreateConversation extends React.Component {
 
-    _createUserConversation() {
-        console.log('createing user convo')
-        let userConvo = this.props.createUserConversations(this.props.cognitoId, 'convo ID', )
-        console.log('userConvo', userConvo)
+    constructor(props) {
+        super(props);
+        this.state = { group_name: 'Group Name' };
+    }
+
+    async _createUserConversation() {
+        uuid = await UUIDGenerator.getRandomUUID()
+        this.props.createConversation({
+            name: this.state.group_name,
+            id: uuid
+        })
+        this.props.createUserConversations({
+            userId: this.props.cognitoId,
+            conversationId: uuid
+        })
+        this.props.navigation.navigate('Conversations')
     }
 
     render() {
-        console.log('CreateConversation render props: ', this.props);
         return (
             <View>
-                <Text> Create Conversation </Text>
-                <FlatList
-                    data={this.props.conversationConnection}
-                    renderItem={({item}) => <Text>{item.conversation.name}</Text>} />
+                <TextInput
+                    onChangeText={ (text) => this.setState({ group_name: text }) }
+                    value={ this.state.text }
+                  />
                 <Button
                     onPress={() => this._createUserConversation()}
                     title='Create Conversation'/>
@@ -54,24 +67,18 @@ const CreateConversationGraphQL = compose(
     }),
     graphql(createUserConversations, {
         props: (props) => ({
-            createUserConversations: (user_id, conversation_id) => {
+            createUserConversations: (args) => {
                 props.mutate({
-                    variables: {
-                        userId: user_id,
-                        conversationId: conversation_id,
-                    }
+                    variables: args
                 })
             }
         })
     }),
     graphql(createConversation, {
         props: (props) => ({
-            createConversation: (user_id, conversation_id) => {
+            createConversation: (args) => {
                 props.mutate({
-                    variables: {
-                        userId: user_id,
-                        conversationId: conversation_id,
-                    }
+                    variables: args
                 })
             }
         })

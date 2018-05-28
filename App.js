@@ -16,6 +16,7 @@ import createMessage from './src/graphql/mutations/createMessage';
 
 import ConversationList from './src/components/ConversationList';
 import CreateConversation from './src/components/CreateConversation';
+import Messages from './src/components/Messages';
 
 
 Amplify.configure(aws_exports)
@@ -33,7 +34,8 @@ const client = new AWSAppSyncClient({
 
 const AppNavigation = createStackNavigator(
     { Conversations: ConversationList,
-      CreateConversation: CreateConversation },
+      CreateConversation: CreateConversation,
+      Messages: Messages },
     { initialRouteName: 'Conversations'}
 );
 

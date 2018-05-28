@@ -4784,6 +4784,10 @@ react-native-tab-view@~0.0.78:
   dependencies:
     prop-types "^15.6.0"
 
+react-native-uuid-generator@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/react-native-uuid-generator/-/react-native-uuid-generator-3.0.2.tgz#7bb4346698029a518060f3780c06ad0b4bf489b9"
+
 react-native@~0.55.2:
   version "0.55.4"
   resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.55.4.tgz#eecffada3750a928e2ddd07cf11d857ae9751c30"
