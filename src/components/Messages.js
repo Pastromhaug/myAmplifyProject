@@ -1,30 +1,23 @@
 import React from 'react';
-import { Button, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { graphql, ApolloProvider, compose } from 'react-apollo';
+import { Button, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { graphql, ApolloProvider, compose, withState } from 'react-apollo';
 
 import { Auth } from 'aws-amplify';
 
-import createUser from '../graphql/mutations/createUser';
-import getUserConversationsConnection from '../graphql/queries/getUserConversationsConnection';
+import getConversationMessages from '../graphql/queries/getConversationMessages';
 
 
-class ConversationList extends React.Component {
+class Messages extends React.Component {
 
     constructor(props) {
-        super(props);
-        Auth.currentSession().then(session => {
-            props.createUser({
-                username: session.idToken.payload['cognito:username'],
-                id: session.idToken.payload['sub'],
-                cognitoId: session.idToken.payload['sub'],
-            });
-        });
+        super(props)
+        this.state = { message_text: '' }
     }
 
     _renderItem(item) {
         return (
             <TouchableOpacity>
-                <Text>{item.item.conversation.name}</Text>
+                <Text>{item.toString()}</Text>
             </TouchableOpacity>
         )
     }
@@ -34,40 +27,33 @@ class ConversationList extends React.Component {
             <View>
                 <Text> Messages </Text>
                 <FlatList
-                    data={this.props.conversationConnection}
+                    data={this.props.messages}
                     renderItem={this._renderItem} />
-                <Button
-                    onPress={() => this.props.navigation.navigate('CreateConversation')}
-                    title='Create Conversation'/>
+                <TextInput
+                    onChangeText={ (text) => this.setState({ message_text: text }) }
+                    value={ this.state.message_text }
+                  />
             </View>
         )
     }
 }
 
-const ConversationListGraphQL = compose(
-    graphql(getUserConversationsConnection, {
-        options: { fetchPolicy: 'cache-and-network' },
-        props: (props) => {
+const MessagesGraphQL = compose(
+    graphql(getConversationMessages, {
+        options: (props) => {
             return {
-                conversationConnection: props.data.me.conversations.userConversations,
+                fetchPolicy: 'cache-and-network',
+                variables: { conversationId: props.navigation.state.params.conversationId },
+            }
+        },
+        props: (props) => {
+            console.log('getConversationMessage props: ', props)
+            return {
+                messages: '',
             }
         }
     }),
-    graphql(createUser, {
-        props: (props) => ({
-            createUser: (user) => {
-                props.mutate({
-                    variables: {
-                        username: user.username,
-                        id: user.id,
-                        cognitoId: user.cognitoId,
-                        registered: false
-                    }
-                }).then( data => {})
-            }
-        })
-    }),
-)(ConversationList)
+)(Messages)
 
-export default ConversationListGraphQL;
+export default MessagesGraphQL;
 
