@@ -5,6 +5,10 @@ import { graphql, ApolloProvider, compose, withState } from 'react-apollo';
 import { Auth } from 'aws-amplify';
 
 import getConversationMessages from '../graphql/queries/getConversationMessages';
+import createMessage from '../graphql/mutations/createMessage';
+import getMe from '../graphql/queries/getMe';
+
+import UUIDGenerator, { getRandomUUID } from 'react-native-uuid-generator';
 
 
 class Messages extends React.Component {
@@ -17,9 +21,20 @@ class Messages extends React.Component {
     _renderItem(item) {
         return (
             <TouchableOpacity>
-                <Text>{item.toString()}</Text>
+                <Text>{item.item.content}</Text>
             </TouchableOpacity>
         )
+    }
+
+    async _sendMessage() {
+        uuid = await UUIDGenerator.getRandomUUID();
+        this.props.createMessage({
+            conversationId: this.props.navigation.state.params.conversationId,
+            id: uuid,
+            createdAt: new Date().getTime(),
+            sender: this.props.cognitoId,
+            content: this.state.message_text,
+        });
     }
 
     render() {
@@ -31,8 +46,10 @@ class Messages extends React.Component {
                     renderItem={this._renderItem} />
                 <TextInput
                     onChangeText={ (text) => this.setState({ message_text: text }) }
-                    value={ this.state.message_text }
-                  />
+                    value={ this.state.message_text } />
+                <Button
+                    onPress={() => this._sendMessage()}
+                    title='send'/>
             </View>
         )
     }
@@ -47,9 +64,27 @@ const MessagesGraphQL = compose(
             }
         },
         props: (props) => {
-            console.log('getConversationMessage props: ', props)
+            console.log('getMessages props: ', props)
             return {
-                messages: '',
+                messages: props.data.allMessageConnection.messages,
+            }
+        }
+    }),
+    graphql(createMessage, {
+        props: (props) => ({
+            createMessage: (args) => {
+                console.log('calling createMessage with args: ', args)
+                props.mutate({
+                    variables: args
+                })
+            }
+        })
+    }),
+    graphql(getMe, {
+        options: { fetchPolicy: 'cache-and-network' },
+        props: (props) => {
+            return {
+                cognitoId: props.data.me.cognitoId,
             }
         }
     }),

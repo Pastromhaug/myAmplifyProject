@@ -22,7 +22,6 @@ class ConversationList extends React.Component {
     }
 
     _navigateToMessages(conversationId) {
-        console.log('sending over: ', conversationId)
         this.props.navigation.navigate('Messages', { conversationId })
     }
 
