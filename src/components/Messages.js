@@ -65,8 +65,9 @@ const MessagesGraphQL = compose(
         },
         props: (props) => {
             console.log('getMessages props: ', props)
+            connection = props.data.allMessageConnection
             return {
-                messages: props.data.allMessageConnection.messages,
+                messages: connection ? connection.messages : [],
             }
         }
     }),

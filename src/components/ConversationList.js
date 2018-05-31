@@ -22,14 +22,17 @@ class ConversationList extends React.Component {
     }
 
     _navigateToMessages(conversationId) {
-        this.props.navigation.navigate('Messages', { conversationId })
+        return () => {
+            console.log('navigating to ', conversationId)
+            this.props.navigation.navigate('Messages', { conversationId })
+        }
     }
 
     _renderItem(item) {
         conversationId = item.item.conversation.id;
         conversationName = item.item.conversation.name;
         return (
-            <TouchableOpacity onPress={() => this._navigateToMessages(conversationId)}>
+            <TouchableOpacity onPress={ this._navigateToMessages(conversationId) }>
                 <Text>{conversationName}</Text>
             </TouchableOpacity>
         )
