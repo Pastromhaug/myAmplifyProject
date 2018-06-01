@@ -7,6 +7,7 @@ import { Auth } from 'aws-amplify';
 import getConversationMessages from '../graphql/queries/getConversationMessages';
 import createMessage from '../graphql/mutations/createMessage';
 import getMe from '../graphql/queries/getMe';
+import subscribeToNewMessages from '../graphql/subscriptions/subscribeToNewMessages';
 
 import UUIDGenerator, { getRandomUUID } from 'react-native-uuid-generator';
 
@@ -16,6 +17,12 @@ class Messages extends React.Component {
     constructor(props) {
         super(props)
         this.state = { message_text: '' }
+    }
+
+    componentWillMount(){
+        this.props.newMessageSubscription(
+            this.props.navigation.state.params.conversationId
+        );
     }
 
     _renderItem(item) {
@@ -68,6 +75,20 @@ const MessagesGraphQL = compose(
             connection = props.data.allMessageConnection
             return {
                 messages: connection ? connection.messages : [],
+                newMessageSubscription: (conversationId) => {
+                    console.log('newMessageSubscription: ', conversationId)
+                    props.data.subscribeToMore({
+                        document: subscribeToNewMessages,
+                        variables: { conversationId: conversationId },
+                        updateQuery: (prev, next) => {
+                            console.log('updateQuery prev: ', prev)
+                            console.log('updateQuery next: ', next)
+                            return {
+                                messages: [newMessage, ...next.subscriptionData.data.subscribeToNewMessage]
+                            }
+                        }
+                    });
+                },
             }
         }
     }),
