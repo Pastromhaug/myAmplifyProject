@@ -26,6 +26,7 @@ class Messages extends React.Component {
     }
 
     _renderItem(item) {
+        // console.log('renderItem: ', item.item)
         return (
             <TouchableOpacity>
                 <Text>{item.item.content}</Text>
@@ -45,6 +46,7 @@ class Messages extends React.Component {
     }
 
     render() {
+        // console.log('render props :', this.props)
         return (
             <View>
                 <Text> Messages </Text>
@@ -71,7 +73,7 @@ const MessagesGraphQL = compose(
             }
         },
         props: (props) => {
-            console.log('getMessages props: ', props)
+            // console.log('getMessages props: ', props)
             connection = props.data.allMessageConnection
             return {
                 messages: connection ? connection.messages : [],
@@ -83,8 +85,12 @@ const MessagesGraphQL = compose(
                         updateQuery: (prev, next) => {
                             console.log('updateQuery prev: ', prev)
                             console.log('updateQuery next: ', next)
+                            const messages = [next.subscriptionData.data.subscribeToNewMessage,
+                                              ...prev.allMessageConnection.messages]
+
+                            console.log('messages :', messages)
                             return {
-                                messages: [newMessage, ...next.subscriptionData.data.subscribeToNewMessage]
+                                messages: messages
                             }
                         }
                     });
@@ -95,7 +101,7 @@ const MessagesGraphQL = compose(
     graphql(createMessage, {
         props: (props) => ({
             createMessage: (args) => {
-                console.log('calling createMessage with args: ', args)
+                // console.log('calling createMessage with args: ', args)
                 props.mutate({
                     variables: args
                 })

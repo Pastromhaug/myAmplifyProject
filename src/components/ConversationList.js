@@ -6,9 +6,10 @@ import { Auth } from 'aws-amplify';
 
 import createUser from '../graphql/mutations/createUser';
 import getUserConversationsConnection from '../graphql/queries/getUserConversationsConnection';
+import getMe from '../graphql/queries/getMe';
 
 
-class ConversationList extends React.Component {
+class   ConversationList extends React.Component {
 
     constructor(props) {
         super(props);
@@ -39,6 +40,7 @@ class ConversationList extends React.Component {
     }
 
     render() {
+        console.log('conversationList render props: ', this.props)
         return (
             <View>
                 <FlatList
@@ -53,14 +55,6 @@ class ConversationList extends React.Component {
 }
 
 const ConversationListGraphQL = compose(
-    graphql(getUserConversationsConnection, {
-        options: { fetchPolicy: 'cache-and-network' },
-        props: (props) => {
-            return {
-                conversationConnection: props.data.me.conversations.userConversations,
-            }
-        }
-    }),
     graphql(createUser, {
         props: (props) => ({
             createUser: (user) => {
@@ -71,9 +65,31 @@ const ConversationListGraphQL = compose(
                         cognitoId: user.cognitoId,
                         registered: false
                     }
-                }).then( data => {})
+                }).then( data => {
+                    console.log('createUser data: ', data);
+                })
             }
         })
+    }),
+    graphql(getMe, {
+        props: (props) => {
+            if (props.data.me !== undefined) {
+                console.log('getMe props: ', props)
+                return {
+                    cognitoId: props.data.me.cognitoId,
+                }
+            } else {
+                console.log('getMe props no me: ', props)
+            }
+        }
+    }),
+    graphql(getUserConversationsConnection, {
+        props: (props) => {
+            console.log('getUserConversationsConnection props: ', props)
+            return {
+                conversationConnection: props.data.me.conversations.userConversations,
+            }
+        }
     }),
 )(ConversationList)
 
