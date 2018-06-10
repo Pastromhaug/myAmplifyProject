@@ -19,6 +19,35 @@ class Messages extends React.Component {
         this.state = { message_text: '' }
     }
 
+    componentWillReceiveProps(nextProps) {
+      if(!nextProps.data.loading) {
+        if (this.unsubscribe) return;
+        console.log('componentWillReceiveProps props: ', nextProps)
+        this.unsubscribe = nextProps.data.subscribeToMore({
+          document: subscribeToNewMessages,
+          variables: { conversationId: nextProps.navigation.state.params.conversationId },
+          updateQuery: (previousResult, { subscriptionData, variables }) => {
+            console.log('subscription: ', subscriptionData);
+            console.log('previousResult', previousResult);
+
+            newProps = {
+              ...previousResult,
+              allMessageConnection: {
+                ...previousResult.allMessageConnection,
+                messages: [
+                  subscriptionData.data.subscribeToNewMessage,
+                  ...previousResult.allMessageConnection.messages,
+                ]
+              }
+            }
+
+            console.log('newProps: ', newProps);
+            return newProps;
+          }
+        });
+      }
+    }
+
     _renderItem(item) {
         return (
             <TouchableOpacity>
@@ -38,8 +67,17 @@ class Messages extends React.Component {
     }
 
     render() {
-        console.log('Messages render props :', this.props)
-        const { data: { allMessageConnection: { messages } } } = this.props;
+        // console.log('Messages render props :', this.props)
+        const { data, loading } = this.props;
+        if (loading) {
+          return (
+            <View>
+              <Text> Loading... </Text>
+            </View>
+          )
+        }
+
+        const { allMessageConnection: { messages } } = data;
         return (
             <View>
                 <Text> Messages </Text>
