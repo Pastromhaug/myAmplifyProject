@@ -14,81 +14,81 @@ import UUIDGenerator, { getRandomUUID } from 'react-native-uuid-generator';
 
 class Messages extends React.Component {
 
-    constructor(props) {
-        super(props)
-        this.state = { message_text: '' }
-    }
+  constructor(props) {
+      super(props)
+      this.state = { message_text: '' }
+  }
 
-    componentWillReceiveProps(nextProps) {
-      if(!nextProps.data.loading) {
-        if (this.unsubscribe) return;
-        this.unsubscribe = nextProps.data.subscribeToMore({
-          document: subscribeToNewMessages,
-          variables: { conversationId: nextProps.navigation.state.params.conversationId },
-          updateQuery: (previousResult, { subscriptionData }) => {
-            newProps = {
-              ...previousResult,
-              allMessageConnection: {
-                ...previousResult.allMessageConnection,
-                messages: [
-                  ...previousResult.allMessageConnection.messages,
-                  subscriptionData.data.subscribeToNewMessage,
-                ]
-              }
+  componentWillReceiveProps(nextProps) {
+    if(!nextProps.data.loading) {
+      if (this.unsubscribe) return;
+      this.unsubscribe = nextProps.data.subscribeToMore({
+        document: subscribeToNewMessages,
+        variables: { conversationId: nextProps.navigation.state.params.conversationId },
+        updateQuery: (previousResult, { subscriptionData }) => {
+          newProps = {
+            ...previousResult,
+            allMessageConnection: {
+              ...previousResult.allMessageConnection,
+              messages: [
+                ...previousResult.allMessageConnection.messages,
+                subscriptionData.data.subscribeToNewMessage,
+              ]
             }
-
-            return newProps;
           }
-        });
-      }
-    }
 
-    _renderItem(item) {
-        return (
-            <TouchableOpacity>
-                <Text>{item.item.content}</Text>
-            </TouchableOpacity>
-        )
-    }
-
-    async _sendMessage() {
-        uuid = await UUIDGenerator.getRandomUUID();
-        this.props.createMessage({
-            conversationId: this.props.navigation.state.params.conversationId,
-            id: uuid,
-            createdAt: new Date().getTime(),
-            content: this.state.message_text,
-        });
-    }
-
-    render() {
-        // console.log('Messages render props :', this.props)
-        const { data, loading } = this.props;
-        if (loading) {
-          return (
-            <View>
-              <Text> Loading... </Text>
-            </View>
-          )
+          return newProps;
         }
-
-        const { allMessageConnection } = data;
-        messagesToRender = allMessageConnection !== undefined ? allMessageConnection.messages : [];
-        return (
-            <View>
-                <Text> Messages </Text>
-                <FlatList
-                    data={messagesToRender}
-                    renderItem={this._renderItem} />
-                <TextInput
-                    onChangeText={ (text) => this.setState({ message_text: text }) }
-                    value={ this.state.message_text } />
-                <Button
-                    onPress={() => this._sendMessage()}
-                    title='send'/>
-            </View>
-        )
+      });
     }
+  }
+
+  _renderItem(item) {
+    return (
+      <TouchableOpacity>
+        <Text>{item.item.content}</Text>
+      </TouchableOpacity>
+    )
+  }
+
+  async _sendMessage() {
+    uuid = await UUIDGenerator.getRandomUUID();
+    this.props.createMessage({
+      conversationId: this.props.navigation.state.params.conversationId,
+      id: uuid,
+      createdAt: new Date().getTime(),
+      content: this.state.message_text,
+    });
+  }
+
+  render() {
+    // console.log('Messages render props :', this.props)
+    const { data, loading } = this.props;
+    if (loading) {
+      return (
+        <View>
+          <Text> Loading... </Text>
+        </View>
+      )
+    }
+
+    const { allMessageConnection } = data;
+    messagesToRender = allMessageConnection !== undefined ? allMessageConnection.messages : [];
+    return (
+      <View>
+        <Text> Messages </Text>
+        <FlatList
+          data={messagesToRender}
+          renderItem={this._renderItem} />
+        <TextInput
+          onChangeText={ (text) => this.setState({ message_text: text }) }
+          value={ this.state.message_text } />
+        <Button
+          onPress={() => this._sendMessage()}
+          title='send'/>
+      </View>
+    )
+  }
 }
 
 const MessagesGraphQL = compose(

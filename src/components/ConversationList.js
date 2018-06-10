@@ -23,8 +23,8 @@ class ConversationList extends React.Component {
   }
 
   render() {
-    const { data: { me, loading, error }, navigation } = this.props;
     console.log('ConversationList render props: ', this.props)
+    const { data: { me, loading, error }, navigation } = this.props;
     return (
       <View>
         <FlatList
@@ -43,7 +43,7 @@ const ConversationListGraphQL = compose(
       getUserConversationsConnection, {
         options: {
           fetchPolicy: 'cache-and-network',
-        }
+        },
       }
     )
 )(ConversationList)
