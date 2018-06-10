@@ -38,7 +38,7 @@ class CreateConversation extends React.Component {
             <View>
                 <TextInput
                     onChangeText={ (text) => this.setState({ group_name: text }) }
-                    value={ this.state.text }
+                    value={ this.state.group_name }
                   />
                 <Button
                     onPress={() => this._createUserConversation()}
