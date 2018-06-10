@@ -1,12 +1,12 @@
 import React from 'react';
-import { View } from 'react-native';
-import { graphql, compose } from 'react-apollo';
+import { View, Text } from 'react-native';
+// import { graphql, compose } from 'react-apollo';
 
 // import { Auth } from 'aws-amplify';
 
 // import createUser from '../graphql/mutations/createUser';
 // import getUserConversationsConnection from '../graphql/queries/getUserConversationsConnection';
-import getMe from '../graphql/queries/getMe';
+// import getMe from '../graphql/queries/getMe';
 
 
 class ConversationList extends React.Component {
@@ -15,14 +15,16 @@ class ConversationList extends React.Component {
         console.log('conversationList render props: ', this.props.data)
         return (
             <View>
-              hiii
+              <Text> hiii yo </Text>
             </View>
         )
     }
 }
 
-const ConversationListGraphQL = compose(
-    graphql(getMe),
-)(ConversationList)
+// const ConversationListGraphQL = compose(
+//     graphql(getMe),
+// )(ConversationList)
 
-export default ConversationListGraphQL;
+// export default ConversationListGraphQL;
+
+export default ConversationList;
