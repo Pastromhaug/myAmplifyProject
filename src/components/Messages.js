@@ -22,26 +22,21 @@ class Messages extends React.Component {
     componentWillReceiveProps(nextProps) {
       if(!nextProps.data.loading) {
         if (this.unsubscribe) return;
-        console.log('componentWillReceiveProps props: ', nextProps)
         this.unsubscribe = nextProps.data.subscribeToMore({
           document: subscribeToNewMessages,
           variables: { conversationId: nextProps.navigation.state.params.conversationId },
-          updateQuery: (previousResult, { subscriptionData, variables }) => {
-            console.log('subscription: ', subscriptionData);
-            console.log('previousResult', previousResult);
-
+          updateQuery: (previousResult, { subscriptionData }) => {
             newProps = {
               ...previousResult,
               allMessageConnection: {
                 ...previousResult.allMessageConnection,
                 messages: [
-                  subscriptionData.data.subscribeToNewMessage,
                   ...previousResult.allMessageConnection.messages,
+                  subscriptionData.data.subscribeToNewMessage,
                 ]
               }
             }
 
-            console.log('newProps: ', newProps);
             return newProps;
           }
         });
@@ -77,12 +72,13 @@ class Messages extends React.Component {
           )
         }
 
-        const { allMessageConnection: { messages } } = data;
+        const { allMessageConnection } = data;
+        messagesToRender = allMessageConnection !== undefined ? allMessageConnection.messages : [];
         return (
             <View>
                 <Text> Messages </Text>
                 <FlatList
-                    data={messages}
+                    data={messagesToRender}
                     renderItem={this._renderItem} />
                 <TextInput
                     onChangeText={ (text) => this.setState({ message_text: text }) }
@@ -96,28 +92,28 @@ class Messages extends React.Component {
 }
 
 const MessagesGraphQL = compose(
-    graphql(getConversationMessages, {
-        options: (props) => {
-            return {
-                variables: { conversationId: props.navigation.state.params.conversationId },
-                fetchPolicy: 'cache-and-network',
-            }
-        },
-    }),
-    graphql(createMessage, {
-        props: (props) => ({
-            createMessage: (args) => {
-                console.log('in createMessage', args)
-                props.mutate({
-                    variables: args
-                }).then( result => {
-                  console.log('createMessage result: ', result);
-                }).catch( err => {
-                  console.log('createMessage error: ', err);
-                })
-            }
+  graphql(getConversationMessages, {
+    options: (props) => {
+      return {
+        variables: { conversationId: props.navigation.state.params.conversationId },
+        fetchPolicy: 'cache-and-network',
+      }
+    },
+  }),
+  graphql(createMessage, {
+    props: (props) => ({
+      createMessage: (args) => {
+        console.log('in createMessage', args)
+        props.mutate({
+          variables: args
+        }).then( result => {
+          console.log('createMessage result: ', result);
+        }).catch( err => {
+          console.log('createMessage error: ', err);
         })
-    }),
+      }
+    })
+  }),
 )(Messages)
 
 export default MessagesGraphQL;
