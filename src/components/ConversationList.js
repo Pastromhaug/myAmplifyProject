@@ -8,15 +8,15 @@ import getUserConversationsConnection from '../graphql/queries/getUserConversati
 class ConversationList extends React.Component {
 
   _navigateToMessages(conversationId) {
-    this.props.navigation.navigate(
-      'Messages',
-      { conversationId },
-    )
+    return () => {
+      console.log('navigating to ', conversationId)
+      this.props.navigation.navigate('Messages', { conversationId })
+    }
   }
 
   _renderItem({ item: { conversation } }) {
     return (
-      <TouchableOpacity onPress={() => this.props.navigation.navigate('Messages')}>
+      <TouchableOpacity onPress={ this._navigateToMessages(conversation.id) }>
         <Text>{conversation.name}</Text>
       </TouchableOpacity>
     )
@@ -43,5 +43,3 @@ const ConversationListGraphQL = compose(
 )(ConversationList)
 
 export default ConversationListGraphQL;
-
-// export default ConversationList;
