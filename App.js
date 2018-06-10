@@ -29,7 +29,7 @@ const client = new AWSAppSyncClient({
   auth: {
     type: AUTH_TYPE.AMAZON_COGNITO_USER_POOLS,
     jwtToken: async () => (await Auth.currentSession()).getIdToken().getJwtToken()
-  }
+  },
 });
 
 Auth.currentSession().then( ({ idToken: { payload } }) => {
