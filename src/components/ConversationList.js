@@ -39,7 +39,13 @@ class ConversationList extends React.Component {
 }
 
 const ConversationListGraphQL = compose(
-    graphql(getUserConversationsConnection)
+    graphql(
+      getUserConversationsConnection, {
+        options: {
+          fetchPolicy: 'cache-and-network',
+        }
+      }
+    )
 )(ConversationList)
 
 export default ConversationListGraphQL;
