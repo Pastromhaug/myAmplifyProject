@@ -1,30 +1,47 @@
 import React from 'react';
-import { View, Text } from 'react-native';
-// import { graphql, compose } from 'react-apollo';
+import { View, Text, FlatList, Button, TouchableOpacity } from 'react-native';
+import { graphql, compose } from 'react-apollo';
 
-// import { Auth } from 'aws-amplify';
-
-// import createUser from '../graphql/mutations/createUser';
-// import getUserConversationsConnection from '../graphql/queries/getUserConversationsConnection';
-// import getMe from '../graphql/queries/getMe';
+import getUserConversationsConnection from '../graphql/queries/getUserConversationsConnection';
 
 
 class ConversationList extends React.Component {
 
-    render() {
-        console.log('conversationList render props: ', this.props.data)
-        return (
-            <View>
-              <Text> hiii yo </Text>
-            </View>
-        )
-    }
+  _navigateToMessages(conversationId) {
+    this.props.navigation.navigate(
+      'Messages',
+      { conversationId },
+    )
+  }
+
+  _renderItem({ item: { conversation } }) {
+    return (
+      <TouchableOpacity onPress={() => this.props.navigation.navigate('Messages')}>
+        <Text>{conversation.name}</Text>
+      </TouchableOpacity>
+    )
+  }
+
+  render() {
+    const { data: { me, loading, error }, navigation } = this.props;
+    console.log('ConversationList render props: ', this.props)
+    return (
+      <View>
+        <FlatList
+          data={me.conversations.userConversations}
+          renderItem={this._renderItem.bind(this)} />
+        <Button
+          onPress={() => navigation.navigate('CreateConversation')}
+          title='Create Conversation'/>
+      </View>
+    )
+  }
 }
 
-// const ConversationListGraphQL = compose(
-//     graphql(getMe),
-// )(ConversationList)
+const ConversationListGraphQL = compose(
+    graphql(getUserConversationsConnection)
+)(ConversationList)
 
-// export default ConversationListGraphQL;
+export default ConversationListGraphQL;
 
-export default ConversationList;
+// export default ConversationList;
