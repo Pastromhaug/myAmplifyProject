@@ -27,7 +27,11 @@ class ConversationList extends React.Component {
     const { data: { me, loading, error }, navigation } = this.props;
 
     if (loading) {
-      return <View> <Text> Loading... </Text> </View>;
+      return (
+        <View>
+          <Text> Loading... </Text>
+        </View>
+      )
     }
 
     return (
