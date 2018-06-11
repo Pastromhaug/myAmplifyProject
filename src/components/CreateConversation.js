@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, FlatList, TextInput, View } from 'react-native';
+import { Button, FlatList, Text, TextInput, View } from 'react-native';
 import { graphql, compose } from 'react-apollo';
 
 import createUserConversations from '../graphql/mutations/createUserConversations';
@@ -30,6 +30,12 @@ class CreateConversation extends React.Component {
     this.props.navigation.navigate('Conversations')
   }
 
+  _renderItem({ item: { username } }) {
+    return (
+      <Text>{ username }</Text>
+    )
+  }
+
   render() {
     console.log('createConversation props: ', this.props)
     return (
@@ -37,6 +43,10 @@ class CreateConversation extends React.Component {
         <TextInput
           onChangeText={ (text) => this.setState({ group_name: text }) }
           value={ this.state.group_name }
+        />
+        <FlatList
+          data={ this.props.allUsers }
+          renderItem={ this._renderItem }
         />
         <Button
           onPress={() => this._createUserConversation()}
@@ -58,6 +68,9 @@ const CreateConversationGraphQL = compose(
   }),
   graphql(getAllUsers, {
     options: { fetchPolicy: 'cache-and-network' },
+    props: (props) => ({
+      allUsers: props.data.allUser,
+    })
   }),
   graphql(createUserConversations, {
     props: (props) => ({
