@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, FlatList, Text, TextInput, View } from 'react-native';
+import { Button, FlatList, Text, TextInput, View, TouchableOpacity } from 'react-native';
 import { graphql, compose } from 'react-apollo';
 
 import createUserConversations from '../graphql/mutations/createUserConversations';
@@ -14,39 +14,77 @@ class CreateConversation extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { group_name: 'Group Name' };
+    this.state = {
+      group_name: 'Group Name',
+      users: [],
+    };
   }
 
   async _createUserConversation() {
-    uuid = await UUIDGenerator.getRandomUUID()
+    const   conversationId = await UUIDGenerator.getRandomUUID()
     this.props.createConversation({
       name: this.state.group_name,
-      id: uuid
+      id: conversationId
     })
-    this.props.createUserConversations({
-      userId: this.props.cognitoId,
-      conversationId: uuid
-    })
+    console.log('this.state.users: ', this.state.users)
+    const cognitoIds = this.state.users.map(user => user.cognitoId);
+    console.log('_createUserConversation cognitoIds: ', cognitoIds)
+    for (let i = 0; i < cognitoIds.length; i += 1) {
+      this.props.createUserConversations({
+        userId: cognitoIds[i],
+        conversationId: conversationId,
+      })
+    }
+
     this.props.navigation.navigate('Conversations')
   }
 
-  _renderItem({ item: { username } }) {
+  _renderSelectableUser({ item: user }) {
     return (
-      <Text>{ username }</Text>
+      <TouchableOpacity onPress={ () => this._addUserToGroup(user) }>
+        <Text>{ user.username }</Text>
+      </TouchableOpacity>
     )
+  }
+
+  _renderSelectedUser( { item: user }) {
+    return (
+      <Text>{ user.username }</Text>
+    )
+  }
+
+  _updateGroupName(text) {
+    this.setState({
+      ...this.state,
+      group_name: text
+    })
+  }
+
+  _addUserToGroup(user) {
+    this.setState({
+      ...this.state,
+      users: [...this.state.users, user],
+    })
   }
 
   render() {
     console.log('createConversation props: ', this.props)
+    console.log('createConversation state: ', this.state)
     return (
       <View>
         <TextInput
-          onChangeText={ (text) => this.setState({ group_name: text }) }
+          onChangeText={ this._updateGroupName.bind(this) }
           value={ this.state.group_name }
         />
+        <Text> { '    Selected Users' }</Text>
+        <FlatList
+          data={ this.state.users }
+          renderItem={ this._renderSelectedUser.bind(this) }
+        />
+        <Text> { '    Available Users' }</Text>
         <FlatList
           data={ this.props.allUsers }
-          renderItem={ this._renderItem }
+          renderItem={ this._renderSelectableUser.bind(this) }
         />
         <Button
           onPress={() => this._createUserConversation()}
@@ -75,7 +113,8 @@ const CreateConversationGraphQL = compose(
   graphql(createUserConversations, {
     props: (props) => ({
       createUserConversations: (args) => {
-        props.mutate({
+        console.log('createUserConversation with args: ', args)
+        return props.mutate({
           variables: args
         })
       }
@@ -84,7 +123,7 @@ const CreateConversationGraphQL = compose(
   graphql(createConversation, {
     props: (props) => ({
       createConversation: (args) => {
-        props.mutate({
+        return props.mutate({
           variables: args
         })
       }
